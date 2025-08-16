@@ -1,80 +1,49 @@
 ---
-- name: Access remote machine, Create /home/details_app/, Clone /home/details_app/ 
+- name: Access Debian-based remote machine, Create /home/details_app/, Clone /home/details_app/ 
   hosts: all
   become: yes
   gather_facts: yes
 
   tasks:
-    - name: Install git (for Debian/Ubuntu based systems)
-      apt:
-        name:
-          - git
-          - acl
-          - python3
-          - python3-pip
-          - pipenv
-        state: present
-        update_cache: yes
+    - name: Block for Debian-based tasks
       when: ansible_os_family == "Debian"
+      block:
+      - name: Install git (for Debian/Ubuntu based systems)
+        apt:
+          name:
+            - git
+            - acl
+            - python3
+            - python3-pip
+            - pipenv
+            - curl
+          state: present
+          update_cache: yes
 
-    - name: Install git (for Rocky Linux based systems)
-      dnf:
-        name:
-          - git
-          - acl
-          - python3
-          - python3-pip
-        state: present
-        update_cache: yes
-      when: ansible_distribution == "Rocky"
+      - name: Add user details_app
+        ansible.builtin.user:
+          name: details_app
+          password: "{{ '123456' | password_hash('sha512') }}"
+          shell: /bin/bash
+          groups: docker
+          create_home: yes
 
-    - name: Install pipenv python package
-      ansible.builtin.pip:
-        name: pipenv
-      when: ansible_distribution == "Rocky"
+      - name: git clone /home/details_app/ on each server AS details_app
+        git:
+          repo: https://github.com/devopsevgeny/detailsapp.git
+          dest: /home/details_app/detailsapp
+        become_user: details_app
 
-    - name: Add user details_app
-      ansible.builtin.user:
-        name: details_app
-        password: "{{ '123456' | password_hash('sha512') }}"
-        shell: /bin/bash
-        groups: docker
-        create_home: yes
-
-    - name: git clone /home/details_app/ on each server AS details_app
-      git:
-        repo: https://github.com/devopsevgeny/detailsapp.git
-        dest: /home/details_app/detailsapp
-      become_user: details_app
-
-    - name: Install application dependencies with pipenv
-      ansible.builtin.shell:
-        cmd: /usr/local/bin/pipenv --python /usr/bin/python3 install --deploy 
-        chdir: /home/details_app/detailsapp          
-      become_user: details_app
-      when: ansible_distribution == "Rocky"
-
-    - name: Install application dependencies with pipenv
-      ansible.builtin.shell:
-        cmd:  
-        chdir: /home/details_app/detailsapp          
-      become_user: details_app
-      when: ansible_distribution == "Debian"
-
-    - name: Run app inside pipenv
-      ansible.builtin.shell:
-        cmd: /usr/local/bin/pipenv --python /usr/bin/python3 install --deploy 
-        chdir: /home/details_app/detailsapp          
-      become_user: details_app
-      when: ansible_distribution == "Rocky"
-
-    - name: Run app inside pipenv
-      ansible.builtin.shell:
-        cmd: pipenv --python /usr/bin/python3 run python src/details/app.py
-        chdir: /home/details_app/detailsapp          
-      become_user: details_app
-      when: ansible_distribution == "Debian"      
-
-    
-      
-      
+      - name: Install dependencies and run app with pipenv
+        ansible.builtin.shell:
+          cmd: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            bash
+            uv self update
+            uv python install 3.11
+            uv python pin 3.11
+            pipenv install
+            pipenv shell
+            python details.py
+          chdir: /home/details_app/detailsapp
+        become_user: details_app
