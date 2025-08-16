@@ -1,14 +1,34 @@
-I want to run a command to docker compose to 99_ this will start the workers and the ansible host
-Then I want to login the ansible host 
-Then I want to run a playbook that will copy the git clone or better clone directly from the wroker
+#!/usr/bin/env bash
+# -----------------------------------------------------
+# Script Name:    script.sh
+# Version:        1.1.0
+# Author:         Yaniv Mendiuk
+# Date:           2025-08-15
+# Description:
+# This script automates installation of ansible and running the playbook.
+
+set -o errexit
+set -o pipefail
+# -----------------------------------------------------
 
 cd ansible-shallow-dive/99_misc/setup/docker/
+
+# Start the containers
 docker compose up -d
 sleep 5
-docker compose exec -it ansible-host bash
 
-chmod 400 ~/.ssh/id_rsa
+# Connect to ansible-host
+# docker compose exec -it ansible-host bash
 
-# Need to handle somehow the finger print for each node - ssh docker@node1 -y
+# Accept SSH host keys automatically
+docker compose exec ansible-host bash -c '
+  for node in node1 node2 node3 node4; do
+    ssh-keyscan -H $node >> /home/ansible/.ssh/known_hosts
+  done
+'
 
-# Need to run the playbook ansible-playbook -i hosts.ini playbook.yaml
+# Ensure private key permissions are correct
+# chmod 400 /root/.ssh/id_rsa
+
+# Run the Ansible playbook directly
+docker compose exec -it ansible-host ansible-playbook -i /home/ansible/ansible_course/hosts.ini /home/ansible/ansible_course/playbook.yaml
