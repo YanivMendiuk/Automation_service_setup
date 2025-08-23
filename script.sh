@@ -31,4 +31,5 @@ docker compose exec ansible-host bash -c '
 # chmod 400 /root/.ssh/id_rsa
 
 # Run the Ansible playbook directly
-docker compose exec -it ansible-host ansible-playbook -i /home/ansible/ansible_course/hosts.ini /home/ansible/ansible_course/playbook_debian.yaml
+#docker compose exec -it ansible-host ansible-playbook -i /home/ansible/ansible_course/hosts.ini /home/ansible/ansible_course/playbook_debian.yaml
+docker compose exec -it ansible-host ansible-playbook -i /home/ansible/ansible_course/hosts.ini /home/ansible/ansible_course/playbook_redhat.yaml

@@ -1,24 +1,27 @@
 ---
-- name: Deploy and run 'detailsapp' on Debian hosts
-  hosts: Debian
+- name: Deploy and run 'detailsapp' on RedHat hosts
+  hosts: RedHat
   become: yes
   gather_facts: yes
 
   tasks:
-    - name: Block for Debian-based tasks
-      when: ansible_os_family == "Debian"
+    - name: Block for RedHat-based tasks
+      when: ansible_os_family == "RedHat"
       block:
-      - name: Install git (for Debian/Ubuntu based systems)
-        apt:
+      - name: Install git (for RedHat Linux based systems)
+        dnf:
           name:
             - git
             - acl
             - python3
             - python3-pip
-            - pipenv
-            - curl
           state: present
           update_cache: yes
+
+      - name: Install pipenv python package
+        ansible.builtin.pip:
+          name: pipenv
+        become_user: details_app
 
       - name: Add user details_app
         ansible.builtin.user:
