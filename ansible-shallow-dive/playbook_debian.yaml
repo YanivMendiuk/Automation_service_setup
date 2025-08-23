@@ -1,6 +1,6 @@
 ---
 - name: Access Debian-based remote machine, Create /home/details_app/, Clone /home/details_app/ 
-  hosts: all
+  hosts: debian
   become: yes
   gather_facts: yes
 
@@ -30,20 +30,53 @@
 
       - name: git clone /home/details_app/ on each server AS details_app
         git:
-          repo: https://github.com/devopsevgeny/detailsapp.git
+          repo: https://github.com/YanivMendiuk/detailsapp.git
           dest: /home/details_app/detailsapp
         become_user: details_app
 
-      - name: Install dependencies and run app with pipenv
+      - name: Install uv and pin python3.11 to directory
         ansible.builtin.shell:
           cmd: |
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            bash
+            . $HOME/.local/bin/env
             uv self update
             uv python install 3.11
             uv python pin 3.11
-            pipenv install
-            pipenv shell
-            python details.py
+          chdir: /home/details_app/detailsapp
+        become_user: details_app    
+
+      - name: Install dependencies with pipenv
+        ansible.builtin.shell:
+          cmd: pipenv install
           chdir: /home/details_app/detailsapp
         become_user: details_app
+
+      - name: Run automation script
+        ansible.builtin.shell:
+          cmd: pipenv run python3 -m automation
+          chdir: /home/details_app/detailsapp
+        become_user: details_app
+
+      - name: Run app with gunicorn
+        ansible.builtin.shell:
+          cmd: nohup pipenv run gunicorn --config gunicorn_conf.py src.details.app:app &
+          chdir: /home/details_app/detailsapp
+        become_user: details_app
+
+      - name: Wait for app to start
+        ansible.builtin.wait_for:
+          host: 127.0.0.1
+          port: 8000
+          delay: 3
+          timeout: 30
+
+      - name: Check endpoint response
+        ansible.builtin.command: curl -s http://127.0.0.1:8000
+        register: curl_output
+        changed_when: false
+
+      - name: Show endpoint response
+        ansible.builtin.debug:
+          msg: "{{ curl_output.stdout }}"
+
+
