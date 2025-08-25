@@ -18,11 +18,6 @@
           state: present
           update_cache: yes
 
-      - name: Install pipenv python package
-        ansible.builtin.pip:
-          name: pipenv
-        become_user: details_app
-
       - name: Add user details_app
         ansible.builtin.user:
           name: details_app
@@ -47,6 +42,11 @@
             uv python pin 3.11
           chdir: /home/details_app/detailsapp
         become_user: details_app    
+        
+      - name: Install pipenv python package for details_app user
+        ansible.builtin.shell:
+          cmd: pip3 install --user pipenv
+        become_user: details_app
 
       - name: Install dependencies with pipenv
         ansible.builtin.shell:
