@@ -1,60 +1,101 @@
-# 🚀 Automation Service Setup with Ansible
+# Automation Service Setup
 
-This repository contains Ansible playbooks and supporting scripts to **deploy and manage the `details_app` service** on Linux-based systems.  
-The setup ensures that the application runs as a system service (via `systemd` or `init.d`) and is properly configured with dependencies, environment variables, and endpoint validation.  
+[![Author](https://img.shields.io/badge/author-Yaniv%20Mendiuk-blue)]()
 
----
+## Table of Contents
 
-## 📋 Prerequisites
-
-Before running the playbooks, ensure you have:
-
-- Remote **Linux machine/VM** 
-- **Docker & Docker Compose** 
-
----
-
-## ⚙️ Tasks Performed
-
-The Ansible playbooks in this project perform the following:
-
-1. **Access Remote Machine**  
-   - Connect to the target Linux VM over SSH.
-  
-2. **Install packages**
-    - 
-
-3. **Deploy Application Sources**  
-   - Create a dedicated `details_app` user  
-   - Place the application files in `/home/details_app/`  
-
-4. **Install Dependencies**  
-   - Install requirements from `requirements.txt` or `pyproject.toml`  
-
-5. **Configure as a Service**  
-   - Use a pre-created service file (`systemd`/`init.d`) to configure the app as a service  
-   - Enable and start the service  
-
-6. **Verification**  
-   - Ensure the service is running  
-   - Reboot the machine and confirm persistence of the service  
-   - Test the application endpoint remotely  
+- [Project Overview](#project-overview)
+- [Directory Structure](#directory-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Ansible Playbooks](#ansible-playbooks)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 📂 Repository Structure
+## Project Overview
 
-```text
+This repository contains an **Ansible-based automation framework** for deploying and running the `detailsapp` application on Linux-based systems. The project supports both **Debian** and **RedHat** hosts and handles:
+
+- User creation and permissions
+- Package installation
+- Python environment setup
+- Application deployment via Git
+- Running automation scripts
+- Starting the application using Gunicorn
+- Endpoint health checks
+
+The automation can be executed locally in Docker containers for testing or directly on remote servers.
+
+---
+
+## Directory Structure
+
 .
-├── CONTRIBUTION.md         # Contributors and their roles
-├── TASKS.md                # List of tasks and project scope
-├── ansible-shallow-dive/   # Ansible examples, playbooks, and misc setup
-│   ├── 99_misc/setup/docker/
-│   │   ├── docker-compose.yml
-│   │   ├── Dockerfile.*    # Various Dockerfiles for testing
-│   │   └── example_app/    # Example app with Gunicorn config
-│   ├── hosts.ini           # Inventory file
-│   ├── playbook_debian.yaml
-│   ├── playbook_redhat.yaml
-│   └── ...
-└── script.sh               # Automation script to install ansible & run playbooks
+├── CONTRIBUTION.md
+├── README.md
+├── TASKS.md
+├── ansible-shallow-dive
+│ ├── 99_misc
+│ │ ├── Task.md
+│ │ ├── darkslide_5.1.0-1_all.deb
+│ │ └── setup
+│ │ ├── docker
+│ │ │ ├── Dockerfile.alpine
+│ │ │ ├── Dockerfile.ansible
+│ │ │ ├── Dockerfile.app
+│ │ │ ├── Dockerfile.deb
+│ │ │ ├── Dockerfile.rpm
+│ │ │ ├── READTHIS.md
+│ │ │ ├── docker-compose.yml
+│ │ │ └── example_app/
+│ │ ├── k3s/setup.sh
+│ │ └── vagrant/Vagrantfile
+│ ├── Dockerfile
+│ ├── backup_playbook.yaml
+│ ├── build.sh
+│ ├── generate.sh
+│ ├── hosts.ini
+│ ├── playbook_debian.yaml
+│ ├── playbook_redhat.yaml
+│ └── spell.txt
+└── script.sh
+
+---
+
+## Prerequisites
+
+Ensure the following tools are installed on your local machine:
+
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- Git
+- Bash shell
+
+---
+
+## Installation
+
+Clone this repository:
+
+```bash
+git clone https://github.com/YanivMendiuk/Automation_service_setup.git
+cd Automation_service_setup
+```
+
+## Usage
+
+The main automation script script.sh handles:
+
+1. Starting the Docker containers
+
+2. Adding SSH keys for nodes
+
+3. Running Ansible playbooks for both Debian and RedHat systems
+
+```bash
+chmod +x script.sh
+./script.sh
+```
