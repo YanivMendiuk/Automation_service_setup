@@ -8,7 +8,7 @@
     - name: Block for RedHat-based tasks
       when: ansible_os_family == "RedHat"
       block:
-      - name: Install git (for RedHat Linux based systems)
+      - name: Install required packages on RedHat systems
         dnf:
           name:
             - git

@@ -8,7 +8,7 @@
     - name: Block for Debian-based tasks
       when: ansible_os_family == "Debian"
       block:
-      - name: Install git (for Debian/Ubuntu based systems)
+      - name: Install required packages on Debian systems
         apt:
           name:
             - git
