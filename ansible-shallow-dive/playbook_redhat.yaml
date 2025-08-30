@@ -13,7 +13,7 @@
           name:
             - git
             - acl
-            - python3
+            - python3.11
             - python3-pip
           state: present
           update_cache: yes
@@ -31,17 +31,6 @@
           repo: https://github.com/YanivMendiuk/detailsapp.git
           dest: /home/details_app/detailsapp
         become_user: details_app
-
-      - name: Install uv and pin python3.11 to directory
-        ansible.builtin.shell:
-          cmd: |
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            . $HOME/.local/bin/env
-            uv self update
-            uv python install 3.11
-            uv python pin 3.11
-          chdir: /home/details_app/detailsapp
-        become_user: details_app    
         
       - name: Install pipenv python package for details_app user
         ansible.builtin.shell:
@@ -50,19 +39,19 @@
 
       - name: Install dependencies with pipenv
         ansible.builtin.shell:
-          cmd: pipenv install
+          cmd: /home/details_app/.local/bin/pipenv install --python /usr/bin/python3.11
           chdir: /home/details_app/detailsapp
         become_user: details_app
 
       - name: Run automation script
         ansible.builtin.shell:
-          cmd: pipenv run python3 -m automation
+          cmd: /home/details_app/.local/bin/pipenv run python3.11 -m automation
           chdir: /home/details_app/detailsapp
         become_user: details_app
 
       - name: Run app with gunicorn
         ansible.builtin.shell:
-          cmd: nohup pipenv run gunicorn --config gunicorn_conf.py src.details.app:app &
+          cmd: nohup /home/details_app/.local/bin/pipenv run gunicorn --config gunicorn_conf.py src.details.app:app &
           chdir: /home/details_app/detailsapp
         become_user: details_app
 

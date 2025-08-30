@@ -11,14 +11,16 @@ set -o errexit
 set -o pipefail
 # -----------------------------------------------------
 
-cd ansible-shallow-dive/99_misc/setup/docker/
+DOCKER_DIR=ansible-shallow-dive/99_misc/setup/docker/
+HOST_INI=/home/ansible/ansible_course/hosts.ini
+DEBIAN_PLAYBOOK=/home/ansible/ansible_course/playbook_debian.yaml
+REDHAT_PLAYBOOK=/home/ansible/ansible_course/playbook_redhat.yaml
+
+cd $DOCKER_DIR
 
 # Start the containers
 docker compose up -d
 sleep 5
-
-# Connect to ansible-host
-# docker compose exec -it ansible-host bash
 
 # Accept SSH host keys automatically
 docker compose exec ansible-host bash -c '
@@ -27,9 +29,6 @@ docker compose exec ansible-host bash -c '
   done
 '
 
-# Ensure private key permissions are correct
-# chmod 400 /root/.ssh/id_rsa
-
 # Run the Ansible playbook directly
-#docker compose exec -it ansible-host ansible-playbook -i /home/ansible/ansible_course/hosts.ini /home/ansible/ansible_course/playbook_debian.yaml
-docker compose exec -it ansible-host ansible-playbook -i /home/ansible/ansible_course/hosts.ini /home/ansible/ansible_course/playbook_redhat.yaml
+docker compose exec -it ansible-host ansible-playbook -i $HOST_INI $DEBIAN_PLAYBOOK
+docker compose exec -it ansible-host ansible-playbook -i $HOST_INI $REDHAT_PLAYBOOK
