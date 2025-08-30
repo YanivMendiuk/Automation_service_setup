@@ -10,7 +10,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Ansible Playbooks](#ansible-playbooks)
-- [Contributing](#contributing)
+- [Contribution](#Contribution)
 - [License](#license)
 
 ---
@@ -99,3 +99,56 @@ The main automation script script.sh handles:
 chmod +x script.sh
 ./script.sh
 ```
+Note: Modify HOST_INI, DEBIAN_PLAYBOOK, and REDHAT_PLAYBOOK variables in script.sh if your file paths differ.
+
+---
+
+## Ansible Playbooks
+
+### Debian Hosts
+* The playbook playbook_debian.yaml performs:
+
+* Installation of system packages: git, acl, python3, python3-pip, pipenv, curl
+
+* Creation of user details_app
+
+* Git clone of the detailsapp repository
+
+* Python environment setup using pipenv and uv
+
+* Running automation scripts
+
+* Starting the app with Gunicorn
+
+* Endpoint health check on port 8000
+
+### RedHat Hosts
+
+* The playbook playbook_redhat.yaml performs:
+
+* Installation of system packages: git, acl, python3.11, python3-pip
+
+* Creation of user details_app
+
+* Git clone of the detailsapp repository
+
+* Installing pipenv for Python dependencies
+
+* Running automation scripts
+
+* Starting the app with Gunicorn
+
+* Endpoint health check on port 8000
+
+## Contribution
+
+See CONTRIBUTION.md
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Author
+
+Yaniv Mendiuk – Software Engineer & Automation Enthusiast
+
